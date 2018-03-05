@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class BookClient {
+	
 	public static void main(String[] args) {
 		String hostAddress;
 		int tcpPort;
@@ -16,10 +17,10 @@ public class BookClient {
 		int clientId;
 
 		if (args.length != 2) {
-			System.out.println("ERROR: Provide 2 arguments: commandFile, clientId");
-			System.out.println("\t(1) <command-file>: file with commands to the server");
-			System.out.println("\t(2) client id: an integer between 1..9");
-			System.exit(-1);
+		  System.out.println("ERROR: Provide 2 arguments: commandFile, clientId");
+		  System.out.println("\t(1) <command-file>: file with commands to the server");
+		  System.out.println("\t(2) client id: an integer between 1..9");
+		  System.exit(-1);
 		}
 
 		String commandFile = args[0];
@@ -33,75 +34,72 @@ public class BookClient {
 
 		
 		try {
-			PrintWriter out = new PrintWriter("out_" + clientId + ".txt");
+		  PrintWriter out = new PrintWriter("out_" + clientId + ".txt");
 			
-			// UDP
-			InetAddress ia = InetAddress.getByName(hostAddress);
-			DatagramSocket datasocket = new DatagramSocket();
-			int len = 1024;
-			byte[] rbuffer = new byte[len];
-			DatagramPacket sPacket, rPacket;
+		  // UDP
+		  InetAddress ia = InetAddress.getByName(hostAddress);
+		  DatagramSocket udpSocket = new DatagramSocket();
+		  int len = 1024;
+		  byte[] rbuffer = new byte[len];
+		  DatagramPacket sPacket, rPacket;
+		  
+		  // TCP
+		  Socket tcpSocket = new Socket(hostAddress, tcpPort);
 
-			Scanner sc = new Scanner(new FileReader(commandFile));
+		  Scanner sc = new Scanner(new FileReader(commandFile));
 
-			while (sc.hasNextLine()) {
-				String cmd = sc.nextLine();
-				String[] tokens = cmd.split(" ");
+		  while (sc.hasNextLine()) {
+		    String cmd = sc.nextLine();
+			String[] tokens = cmd.split(" ");
 
-				if (tokens[0].equals("setmode")) {
-					// TODO: set the mode of communication for sending commands to the server
-					protocol = tokens[1];
-				} else if (tokens[0].equals("borrow")) {
-					// TODO: send appropriate command to the server and display the
-					// appropriate responses form the server
+			if (tokens[0].equals("setmode")) {
+				// TODO: set the mode of communication for sending commands to the server
+				protocol = tokens[1];
+			} else if (tokens[0].equals("borrow") || tokens[0].equals("return") 
+						|| tokens[0].equals("inventory") || tokens[0].equals("list")) {
+				// TODO: send appropriate command to the server and display the
+				// appropriate responses form the server
 					
-					if (protocol.equals("T")) {
-						Socket socket = new Socket(hostAddress, tcpPort);
-			    		DataOutputStream tOut = new DataOutputStream(socket.getOutputStream());
-			    		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			    		tOut.writeBytes(cmd + '\n');
-			    		String line;
-			    		while ((line = in.readLine()) != null) {
-			    			out.println(line);
-			    		}
-			    		socket.close();
-					}
-					
-					if (protocol.equals("U")) {
-						byte[] buffer = new byte[cmd.length()];
-						buffer = cmd.getBytes();
-						sPacket = new DatagramPacket(buffer, buffer.length, ia, udpPort);
-						datasocket.send(sPacket);
-						rPacket = new DatagramPacket(rbuffer, rbuffer.length);
-						datasocket.receive(rPacket);
-						String retstring = new String(rPacket.getData(), 0, rPacket.getLength());
+				if (protocol.equals("T")) {
+		    		  DataOutputStream tOut = new DataOutputStream(tcpSocket.getOutputStream());
+		    		  BufferedReader in = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
+		    		  tOut.writeBytes(cmd + '\n');
+		    		  String line;
+		    		  while ((line = in.readLine()) != null) {
+		    		    out.println(line);
+			    		}			    			
+			  	  } else if (protocol.equals("U")) {
+					byte[] buffer = new byte[cmd.length()];
+					buffer = cmd.getBytes();
+					sPacket = new DatagramPacket(buffer, buffer.length, ia, udpPort);
+					udpSocket.send(sPacket);
+					rPacket = new DatagramPacket(rbuffer, rbuffer.length);
+					udpSocket.receive(rPacket);
+					String retstring = new String(rPacket.getData(), 0, rPacket.getLength());
 						
-						out.println(retstring);
+					out.println(retstring);
 					}
-				} else if (tokens[0].equals("return")) {
-					// TODO: send appropriate command to the server and display the
-					// appropriate responses form the server
-				} else if (tokens[0].equals("inventory")) {
-					// TODO: send appropriate command to the server and display the
-					// appropriate responses form the server
-				} else if (tokens[0].equals("list")) {
-					// TODO: send appropriate command to the server and display the
-					// appropriate responses form the server
 				} else if (tokens[0].equals("exit")) {
-					// TODO: send appropriate command to the server
-					out.close();
+				  // TODO: send appropriate command to the server
+				  out.close();
+				  try {
+				    tcpSocket.close();
+				  } catch (IOException e) {
+				    e.printStackTrace();
+				  }
+				  udpSocket.close();
 				} else {
-					System.out.println("ERROR: No such command");
-				}
-			}
+				  System.out.println("ERROR: No such command");
+			  }
+		  }
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+		  e.printStackTrace();
 		} catch (UnknownHostException e) {
-			System.err.println(e);
+		  System.err.println(e);
 		} catch (SocketException e) {
-			System.err.println(e);
+		  System.err.println(e);
 		} catch (IOException e) {
-			System.err.println(e);
+		  System.err.println(e);
 		}
 	}
 
