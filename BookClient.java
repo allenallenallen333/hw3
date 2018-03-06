@@ -1,3 +1,6 @@
+// Jia-luen Yang (jy8435)
+// Kevin Pham (kmp2996)
+
 import java.util.Scanner;
 import java.io.*;
 import java.net.DatagramPacket;
