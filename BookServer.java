@@ -258,7 +258,7 @@ class TCPThread extends Thread{
 	  
 	  public void run() {
 		  try {
-			  System.out.println("TCP Thread");
+			  // System.out.println("TCP Thread");
 			  DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 			  BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));      
 			  
@@ -311,7 +311,7 @@ class UDPThread extends Thread{
 	}
 	
 	public void run() {
-		System.out.println("UDP Thread");
+		// System.out.println("UDP Thread");
 		
         try {
         	byte[] receiveData = new byte[1024];
