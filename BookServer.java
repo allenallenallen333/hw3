@@ -19,7 +19,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BookServer {
+public class BookServer{
 	
   public static void main (String[] args) {
 	  int tcpPort;
@@ -61,13 +61,9 @@ public class BookServer {
 	  // UDP + TCP Listen
 	   
 	   TCPListen tcpListen = new TCPListen(tcpPort);
-	   System.out.println("11");
-	   tcpListen.run();
-	   System.out.println("22");
 	   UDPListen udpListen = new UDPListen(udpPort);
-	   System.out.println("33");
-	   udpListen.run();
-	   System.out.println("44");
+	   tcpListen.start();
+	   udpListen.start();
 	  
 //	  try {
 //		  
@@ -241,6 +237,7 @@ class UDPListen extends Thread{
 			  while(true) {
 				  UDPThread udpT = new UDPThread(udpSock);
 				  udpT.run();
+				  
 			  }
 			  
 		  } catch (IOException e) {
@@ -295,7 +292,6 @@ class TCPThread extends Thread{
 		    	  
 		    	  // break;
 		      }	
-			  
 		      // socket.close();
 		      
 		  } catch (IOException e) {
